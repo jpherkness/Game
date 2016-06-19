@@ -1,4 +1,4 @@
-package tile;
+package map.tile;
 
 import gfx.Screen;
 import gfx.TileSheet;
@@ -6,13 +6,30 @@ import map.Map;
 
 public class Water extends Tile {
 
+    /**
+     * Constructor for the Water map.tile.
+     * @param map the map that the map.tile belongs to
+     * @param row the row of the map.tile
+     * @param col the column of the map.tile
+     */
     public Water(Map map, int row, int col){
         super(map, row, col, Tile.ID_WATER);
-
-        box.setShouldCollide(true);
     }
 
-    @Override
+    /**
+     * Updates the map.tile.
+     */
+    public void update() {
+        super.update();
+    }
+
+    /**
+     * Renders the map.tile in the screen at a specified position.
+     * @param screen the screen which will be rendered onto
+     * @param map    the map that the map.tile belong to
+     * @param x      the x position of the map.tile
+     * @param y      the y position of the map.tile
+     */
     public void render(Screen screen, Map map, int x, int y) {
 
         boolean u = map.getTile(row, col-1).id == Tile.ID_GRASS;
@@ -54,7 +71,10 @@ public class Water extends Tile {
         }
     }
 
-    public void update() {
-        super.update();
-    }
+    /**
+     * Returns a boolean indicating whether or not the map.tile is solid.
+     * If a map.tile is solid it cannot collide with other objects.
+     * @return a boolean indicating whether or not the map.tile is solid
+     */
+    public boolean solid(){ return true; }
 }

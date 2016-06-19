@@ -1,11 +1,11 @@
 package map;
 
 import game.Game;
-import gfx.Font;
 import gfx.Screen;
-import tile.BoundingBox;
-import tile.*;
-import entity.Player;
+import helper.BoundingBox;
+import map.tile.*;
+import map.entity.mob.Player;
+import map.entity.Entity;
 import java.util.Random;
 import noise.OpenSimplexNoise;
 
@@ -22,10 +22,7 @@ public class Map {
 	private int height;
 
 	// camera
-	public Screen camera;
 	public BoundingBox cameraBox;
-	public int cameraOffsetX;
-	public int cameraOffsetY;
 
 	// entities
 	public Player player;
@@ -33,6 +30,12 @@ public class Map {
 	// physics
 	public BoundingBox box;
 
+	/**
+	 * Constructor for the map object.
+	 * @param game the game that the map belongs to
+	 * @param rows the number of rows in the map
+	 * @param cols the number of columns in the map
+     */
 	public Map(Game game, int rows, int cols) {
 		this.game = game;
 		this.cols = cols;
@@ -43,13 +46,11 @@ public class Map {
 		tiles = new Tile[rows][cols];
 		player = new Player(this);
 
-		box = new BoundingBox(0, 0, width, height, false);
-		cameraBox = new BoundingBox(0, 0, 96, 96, false);
-		camera = new Screen(game.WIDTH, game.HEIGHT);
+		box = new BoundingBox(0, 0, width, height);
+		cameraBox = new BoundingBox(0, 0, 96, 96);
 
 		generateIsland(this);
 		placePlayer(player, this);
-		updateCamera();
 	}
 
 	/**
@@ -58,21 +59,30 @@ public class Map {
      */
 	public void render(Screen screen) {
 
-		// Draw each tile
+		// Determine the offset for the screen
+		int xOffset = Math.round(player.getX() + Tile.TILE_SIZE/2) - screen.width / 2;
+		xOffset = Math.max(xOffset, 0);
+		xOffset = Math.min(xOffset, width - screen.width);
+
+		int yOffset = Math.round(player.getY() + Tile.TILE_SIZE/2) - screen.height / 2;
+		yOffset = Math.max(yOffset, 0);
+		yOffset = Math.min(yOffset, height - screen.height);
+
+		screen.setOffset(xOffset, yOffset);
+		cameraBox.setBoundary(xOffset, yOffset, screen.width, screen.height);
+
+		// Draw each map.tile
 		for(int i = 0; i < tiles.length; i++){
 			for(int j = 0; j < tiles[i].length; j++){
 				// We only render the tiles that overlap with the camera
-				if(tiles[i][j].box.isOverlapping(cameraBox)){
-					tiles[i][j].render(camera, this, i * Tile.TILE_SIZE + cameraOffsetX, j * Tile.TILE_SIZE + cameraOffsetY);
+				if(tiles[i][j].box.overlaps(cameraBox)){
+					tiles[i][j].render(screen, this, i * Tile.TILE_SIZE, j * Tile.TILE_SIZE);
 				}
 			}
 		}
 
 		// Draw the player
-		player.render(camera, player.getX() + cameraOffsetX, player.getY() + cameraOffsetY);
-
-		// Draw the camera onto the screen
-		screen.overlay(camera, 0, 0);
+		player.render(screen, player.getX(), player.getY());
 	}
 
 	/**
@@ -80,7 +90,7 @@ public class Map {
 	 */
 	public void update() {
 
-		// Update each tile
+		// Update each map.tile
 		for(int i = 0; i < tiles.length; i++){
 			for(int j = 0; j < tiles[i].length; j++){
 				tiles[i][j].update();
@@ -89,29 +99,11 @@ public class Map {
 
 		// Update the player
 		player.update();
-
-		//Update the cameras position
-		updateCamera();
 	}
 
 	/**
-	 *  Updates the offset and bounding box of the camera.
-	 */
-	public void updateCamera(){
-		cameraOffsetX = camera.width / 2 - Math.round(player.getX() + Tile.TILE_SIZE/2);
-		cameraOffsetX = Math.min(cameraOffsetX, 0);
-		cameraOffsetX = Math.max(cameraOffsetX, camera.width - width);
-
-		cameraOffsetY = camera.height / 2 - Math.round(player.getY() + Tile.TILE_SIZE/2);
-		cameraOffsetY = Math.min(cameraOffsetY, 0);
-		cameraOffsetY = Math.max(cameraOffsetY, camera.height - height);
-
-		cameraBox.setBoundary(-cameraOffsetX, -cameraOffsetY, camera.width, camera.height);
-	}
-
-	/**
-	 * Sets the tile at a specified position in the map.
-	 * @param tile the tile
+	 * Sets the map.tile at a specified position in the map.
+	 * @param tile the map.tile
 	 * @param row  the desired row
 	 * @param col  the desired column
      */
@@ -120,10 +112,10 @@ public class Map {
 	}
 
 	/**
-	 * Returns the tile at a specific position in the map.
-	 * @param row the row of the tile
-	 * @param col the column of the tile
-     * @return    the tile at the specified position
+	 * Returns the map.tile at a specific position in the map.
+	 * @param row the row of the map.tile
+	 * @param col the column of the map.tile
+     * @return    the map.tile at the specified position
      */
 	public Tile getTile(int row, int col){
 
@@ -137,13 +129,14 @@ public class Map {
 	/**
 	 * Returns a boolean indicating whether or not a bounding box is colliding with any
 	 * other bounding boxes in the map.
-	 * @param box the bounding box that is being
-	 * @return    a boolean indicating whether a collision has occurred
+	 * @param entity the map.entity that is being checked for collisions
+	 * @return    	 a boolean indicating whether a collision has occurred
      */
-	public boolean isColliding(BoundingBox box){
+	public boolean isColliding(Entity entity){
 		for(int i = 0; i < tiles.length; i++){
 			for(int j = 0; j < tiles[i].length; j++){
-				if(box.isColliding(tiles[i][j].box)) return true;
+				Tile tile = tiles[i][j];
+				if(tile.solid() && entity.shouldCollide && entity.box.overlaps(tiles[i][j].box)) return true;
 			}
 		}
 		return false;

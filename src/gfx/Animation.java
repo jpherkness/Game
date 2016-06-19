@@ -40,10 +40,25 @@ public class Animation {
         }
     }
 
-    public void setDelay(int delay){ this.delay = delay; }
+    public void setDelay(int delay){
+        this.delay = delay;
+    }
 
-    public int getFrame(){ return currentFrame; }
-    public Bitmap getImage(){ return frames[currentFrame]; }
-    public void start(){ shouldAnimate = true; }
-    public void stop(){ shouldAnimate = false; }
+    public Bitmap getImage(){
+        return frames[currentFrame];
+    }
+
+    public void start(){
+        shouldAnimate = true;
+    }
+
+    public void stop(){
+        currentFrame = 0;
+        shouldAnimate = false;
+    }
+
+    public void finish(){
+        shouldAnimate = false;
+    }
+
 }
