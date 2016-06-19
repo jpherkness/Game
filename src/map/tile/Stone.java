@@ -11,14 +11,14 @@ public class Stone extends Tile {
      * @param map the map that the map.tile belongs to
      * @param row the row of the map.tile
      * @param col the column of the map.tile
-     */
+	 */
     public Stone(Map map, int row, int col){
         super(map, row, col, Tile.ID_STONE);
     }
 
     /**
      * Updates the map.tile.
-     */
+	 */
     public void update() {
         super.update();
     }
@@ -29,7 +29,7 @@ public class Stone extends Tile {
      * @param map    the map that the map.tile belong to
      * @param x      the x position of the map.tile
      * @param y      the y position of the map.tile
-     */
+	 */
     public void render(Screen screen, Map map, int x, int y) {
 
         // Determine the image that should be used
@@ -50,7 +50,7 @@ public class Stone extends Tile {
      * @param left  a boolean indicating if the map.tile left is stone
      * @param right a boolean indicating if the map.tile right is stone
      * @return
-     */
+	 */
     public int calculateTileIndex(boolean above, boolean below, boolean left, boolean right) {
         int sum = 0;
         if (above) sum += 1;
@@ -64,6 +64,6 @@ public class Stone extends Tile {
      * Returns a boolean indicating whether or not the map.tile is solid.
      * If a map.tile is solid it cannot collide with other objects.
      * @return a boolean indicating whether or not the map.tile is solid
-     */
+	 */
     public boolean solid(){ return true; }
 }

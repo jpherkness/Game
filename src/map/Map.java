@@ -35,7 +35,7 @@ public class Map {
 	 * @param game the game that the map belongs to
 	 * @param rows the number of rows in the map
 	 * @param cols the number of columns in the map
-     */
+	 */
 	public Map(Game game, int rows, int cols) {
 		this.game = game;
 		this.cols = cols;
@@ -56,7 +56,7 @@ public class Map {
 	/**
 	 * Draws all entities and tiles to the camera, and then to the screen.
 	 * @param screen the screen that the map will be rendered to
-     */
+	 */
 	public void render(Screen screen) {
 
 		// Determine the offset for the screen
@@ -106,7 +106,7 @@ public class Map {
 	 * @param tile the map.tile
 	 * @param row  the desired row
 	 * @param col  the desired column
-     */
+	 */
 	public void setTile(Tile tile, int row, int col){
 		tiles[row][col] = tile;
 	}
@@ -116,7 +116,7 @@ public class Map {
 	 * @param row the row of the map.tile
 	 * @param col the column of the map.tile
      * @return    the map.tile at the specified position
-     */
+	 */
 	public Tile getTile(int row, int col){
 
 		if(row >= 0 && row < rows && col >= 0 && col < cols){
@@ -131,7 +131,7 @@ public class Map {
 	 * other bounding boxes in the map.
 	 * @param entity the map.entity that is being checked for collisions
 	 * @return    	 a boolean indicating whether a collision has occurred
-     */
+	 */
 	public boolean isColliding(Entity entity){
 		for(int i = 0; i < tiles.length; i++){
 			for(int j = 0; j < tiles[i].length; j++){
@@ -146,7 +146,7 @@ public class Map {
 	 * Determines the initial position of the player in the map.
 	 * @param player the player being added to the map
 	 * @param map    the map
-     */
+	 */
 	public void placePlayer(Player player, Map map){
 		for(int i = 0; i < map.tiles.length; i++){
 			for(int j = 0; j < map.tiles[i].length; j++){
@@ -161,7 +161,7 @@ public class Map {
 	/**
 	 * Generates an array of tiles that is shaped like an island.
 	 * @param map the map whose wiles will be modified
-     */
+	 */
 	public static void generateIsland(Map map){
 		Random random = new Random();
 		OpenSimplexNoise noise1 = new OpenSimplexNoise(random.nextLong());

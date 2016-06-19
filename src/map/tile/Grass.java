@@ -11,14 +11,14 @@ public class Grass extends Tile{
      * @param map the map that the map.tile belongs to
      * @param row the row of the map.tile
      * @param col the column of the map.tile
-     */
+	 */
     public Grass(Map map, int row, int col){
         super(map, row, col, Tile.ID_GRASS);
     }
 
     /**
      * Updates the map.tile.
-     */
+	 */
     public void update() {
         super.update();
     }
@@ -29,7 +29,7 @@ public class Grass extends Tile{
      * @param map    the map that the map.tile belong to
      * @param x      the x position of the map.tile
      * @param y      the y position of the map.tile
-     */
+	 */
     public void render(Screen screen, Map map, int x, int y) {
         super.render(screen, map, x, y);
         screen.render(TileSheet.GRASS, x, y);

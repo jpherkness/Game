@@ -30,7 +30,7 @@ public abstract class Tile {
      * @param row the row of the map.tile
      * @param col the column of the map.tile
      * @param id  the id of the map.tile
-     */
+	 */
     public Tile(Map map, int row, int col, int id){
         this.map = map;
         this.row = row;
@@ -43,7 +43,7 @@ public abstract class Tile {
 
     /**
      * Updates the map.tile.
-     */
+	 */
     public void update(){}
 
     /**
@@ -52,14 +52,14 @@ public abstract class Tile {
      * @param map    the map that the map.tile belong to
      * @param x      the x position of the map.tile
      * @param y      the y position of the map.tile
-     */
+	 */
     public void render(Screen screen, Map map, int x, int y){}
 
     /**
      * Returns a boolean indicating whether or not the map.tile is solid.
      * If a map.tile is solid it cannot collide with other objects.
      * @return a boolean indicating whether or not the map.tile is solid
-     */
+	 */
     public boolean solid(){
         return false;
     }
