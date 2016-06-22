@@ -1,5 +1,8 @@
 package helper;
 
+import gfx.Screen;
+import gfx.Bitmap;
+
 public class BoundingBox {
 
     public int top;
@@ -74,4 +77,26 @@ public class BoundingBox {
         return false;
     }
 
+    /**
+     * Changes the position of the bounding box.
+     * @param xo the x offest
+     * @param yo the y offset
+     */
+    public void move(int xo, int yo){
+        right += xo;
+        left += xo;
+        top += yo;
+        bottom += yo;
+    }
+
+    /**
+     * Changes the position of the bounding box.
+     * @param x the x position
+     * @param y the y position
+     */
+    public void setPosition(int x, int y){
+        int width = right - left;
+        int height = bottom - top;
+        setBoundary(x, y, width, height);
+    }
 }

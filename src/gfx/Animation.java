@@ -4,22 +4,20 @@ import java.awt.image.BufferedImage;
 
 public class Animation {
 
-    public Bitmap[] frames;
-    public int currentFrame;
-    public int timesPlayed;
-    public int ticks;
-    public int delay;
-    public int numFrames;
-    public boolean shouldAnimate;
+    protected Bitmap[] frames;
+    protected int currentFrame;
+    protected int timesPlayed;
+    protected int ticks;
+    protected int delay;
+    protected int numFrames;
+    protected boolean shouldAnimate;
 
     public Animation(){
         delay = 6;
+        shouldAnimate = true;
     }
     public void setFrames(Bitmap[] frames){
         this.frames = frames;
-        currentFrame = 0;
-        timesPlayed = 0;
-        ticks = 0;
         numFrames = frames.length;
     }
 
@@ -50,11 +48,6 @@ public class Animation {
 
     public void start(){
         shouldAnimate = true;
-    }
-
-    public void stop(){
-        currentFrame = 0;
-        shouldAnimate = false;
     }
 
     public void finish(){

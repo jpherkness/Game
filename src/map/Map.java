@@ -3,9 +3,14 @@ package map;
 import game.Game;
 import gfx.Screen;
 import helper.BoundingBox;
+import map.entity.Mob;
+import map.entity.Skeleton;
 import map.tile.*;
-import map.entity.mob.Player;
+import map.entity.Player;
 import map.entity.Entity;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import noise.OpenSimplexNoise;
 
@@ -25,10 +30,11 @@ public class Map {
 	public BoundingBox cameraBox;
 
 	// entities
-	public Player player;
+	public List<Entity> entities = new ArrayList<Entity>();
 
 	// physics
 	public BoundingBox box;
+	protected Random random = new Random();
 
 	/**
 	 * Constructor for the map object.
@@ -43,14 +49,17 @@ public class Map {
 		this.width = cols * tileSize;
 		this.height = rows * tileSize;
 
-		tiles = new Tile[rows][cols];
-		player = new Player(this);
-
 		box = new BoundingBox(0, 0, width, height);
 		cameraBox = new BoundingBox(0, 0, 96, 96);
 
-		generateIsland(this);
-		placePlayer(player, this);
+		tiles = new Tile[rows][cols];
+
+		this.add(new Player(this));
+		this.add(new Skeleton(this));
+		for(int i = 0; i < 3; i++){
+			this.add(new Skeleton(this));
+		}
+		generateIsland();
 	}
 
 	/**
@@ -60,11 +69,11 @@ public class Map {
 	public void render(Screen screen) {
 
 		// Determine the offset for the screen
-		int xOffset = Math.round(player.getX() + Tile.TILE_SIZE/2) - screen.width / 2;
+		int xOffset = Math.round(getPlayer().getX() + Tile.TILE_SIZE/2) - screen.width / 2;
 		xOffset = Math.max(xOffset, 0);
 		xOffset = Math.min(xOffset, width - screen.width);
 
-		int yOffset = Math.round(player.getY() + Tile.TILE_SIZE/2) - screen.height / 2;
+		int yOffset = Math.round(getPlayer().getY() + Tile.TILE_SIZE/2) - screen.height / 2;
 		yOffset = Math.max(yOffset, 0);
 		yOffset = Math.min(yOffset, height - screen.height);
 
@@ -74,15 +83,25 @@ public class Map {
 		// Draw each map.tile
 		for(int i = 0; i < tiles.length; i++){
 			for(int j = 0; j < tiles[i].length; j++){
+				Tile t = tiles[i][j];
+
 				// We only render the tiles that overlap with the camera
-				if(tiles[i][j].box.overlaps(cameraBox)){
-					tiles[i][j].render(screen, this, i * Tile.TILE_SIZE, j * Tile.TILE_SIZE);
+				if(t.box.overlaps(cameraBox)){
+					t.render(screen, this, i * Tile.TILE_SIZE, j * Tile.TILE_SIZE);
 				}
 			}
 		}
 
-		// Draw the player
-		player.render(screen, player.getX(), player.getY());
+		// Draw the entities
+		for(int i = 0; i < entities.size(); i++){
+			Entity e = entities.get(i);
+
+			// We only render the entities that overlap with the camera
+			if(e.box.overlaps(cameraBox)){
+				e.render(screen);
+			}
+		}
+
 	}
 
 	/**
@@ -98,7 +117,9 @@ public class Map {
 		}
 
 		// Update the player
-		player.update();
+		for(int i = 0; i < entities.size(); i++){
+			entities.get(i).update();
+		}
 	}
 
 	/**
@@ -136,59 +157,83 @@ public class Map {
 		for(int i = 0; i < tiles.length; i++){
 			for(int j = 0; j < tiles[i].length; j++){
 				Tile tile = tiles[i][j];
-				if(tile.solid() && entity.shouldCollide && entity.box.overlaps(tiles[i][j].box)) return true;
+				if(tile.solid() && entity.solid() && entity.box.overlaps(tiles[i][j].box)) return true;
 			}
+		}
+		for(int i = 0; i < entities.size(); i++){
+			if(entity == entities.get(i)) continue;
+			if(entity.solid() && entities.get(i).solid() && entity.box.overlaps(entities.get(i).box)) return true;
 		}
 		return false;
 	}
 
 	/**
-	 * Determines the initial position of the player in the map.
-	 * @param player the player being added to the map
-	 * @param map    the map
+	 * Determines the initial position of each enitity in the map.
+	 * @param entities the list of entities being added to the map
 	 */
-	public void placePlayer(Player player, Map map){
-		for(int i = 0; i < map.tiles.length; i++){
-			for(int j = 0; j < map.tiles[i].length; j++){
-				if(map.tiles[i][j].id == Tile.ID_GRASS){
-					player.setPosition(map.tiles[i][j].row, map.tiles[i][j].col);
-					return;
+	public void placeEntities(List<Entity> entities){
+
+		for(int e = 0; e < entities.size(); e++){
+			boolean placed = false;
+			while(!placed){
+				int x = random.nextInt(rows);
+				int y = random.nextInt(cols);
+				if(!tiles[x][y].solid()){
+					entities.get(e).setPosition(x, y);
+					placed = true;
 				}
 			}
 		}
 	}
 
+	public void add(Entity e){
+		if (e instanceof Mob) {
+			entities.add(e);
+		}
+	}
+
+	public Player getPlayer(){
+		for(int i = 0; i < entities.size(); i++){
+			if(entities.get(i) instanceof Player){
+				return (Player) entities.get(i);
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * Generates an array of tiles that is shaped like an island.
-	 * @param map the map whose wiles will be modified
+	 * Then places the entities in the map.
 	 */
-	public static void generateIsland(Map map){
+	public void generateIsland(){
 		Random random = new Random();
 		OpenSimplexNoise noise1 = new OpenSimplexNoise(random.nextLong());
 
-		for (int x = 0; x < map.rows; x++) {
-			for (int y = 0; y < map.cols; y++) {
+		for (int x = 0; x < rows; x++) {
+			for (int y = 0; y < cols; y++) {
 
 				//Gets a height value between 0 and 1
 				double value = noise1.eval((double)x / 16, (double)y / 16, 0.0);
 				value += Math.abs(noise1.eval((double)x / 8, (double)y / 8, 1000.0)) / 2;
 				//value += 0.4;
-				double xd = x / (map.rows - 1.0) * 2 - 1;
-				double yd = y / (map.cols - 1.0) * 2 - 1;
+				double xd = x / (rows - 1.0) * 2 - 1;
+				double yd = y / (cols - 1.0) * 2 - 1;
 				value += 1.0 - Math.sqrt(xd * xd  + yd * yd);
 				value -= Math.sqrt(xd * xd  + yd * yd);
 
 				if(value > 0.7){
-					map.setTile(new Stone(map, x, y), x, y);
+					setTile(new Stone(this, x, y), x, y);
 				}else if(value > 0.1){
-					map.setTile(new Grass(map, x, y), x, y);
+					setTile(new Grass(this, x, y), x, y);
 				}else if(value >= 0.0){
-					map.setTile(new Grass(map, x, y), x, y);
+					setTile(new Grass(this, x, y), x, y);
 				}else{
-					map.setTile(new Water(map, x, y), x, y);
+					setTile(new Water(this, x, y), x, y);
 				}
 			}
 		}
+
+		placeEntities(entities);
 	}
 
 }

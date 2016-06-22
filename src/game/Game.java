@@ -14,7 +14,7 @@ import map.Map;
 
 public class Game extends Canvas implements Runnable {
 
-    public static final String NAME = "Game";
+    public static final String NAME = "Super Barber Adventures";
 
     // dimensions
     public static final int WIDTH = 128;

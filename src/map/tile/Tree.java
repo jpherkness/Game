@@ -36,9 +36,9 @@ public class Tree extends Tile{
     }
 
     /**
-     * Returns a boolean indicating whether or not the map.tile is solid.
-     * If a map.tile is solid it cannot collide with other objects.
-     * @return a boolean indicating whether or not the map.tile is solid
+     * Returns a boolean indicating whether or not the tile is solid.
+     * If a tile is solid, it cannot collide with other objects.
+     * @return a boolean indicating whether or not the tile is solid
      */
     public boolean solid(){ return true; }
 }
